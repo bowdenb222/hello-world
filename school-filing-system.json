@@ -1,0 +1,70 @@
+{
+  "term": "Fall 2026",
+  "rootFolderId": "1iQpM5LM4sXgcciB4_mY01L0cr9ZT1kub",
+  "rootUrl": "https://drive.google.com/drive/folders/1iQpM5LM4sXgcciB4_mY01L0cr9ZT1kub",
+  "inboxFolderId": "1On4oKFv_b0qo2aETrNcKewl-j3x3K7vw",
+  "namingConvention": "<CODE> — <Type> — <Topic> — <YYYY-MM-DD>.<ext>",
+  "types": ["Handouts", "Assignments", "Readings", "Exams", "Emails"],
+  "courses": [
+    {
+      "key": "BOM",
+      "name": "BOM (BUSN1-UC 504)",
+      "instructor": "Dukette",
+      "meets": "Thu 6:20-8:50 PM",
+      "dates": "2026-09-03 to 2026-12-10",
+      "folderId": "1XUavoajyPMwKGRHcG7b-RwtBWwVYpP8L",
+      "sub": {
+        "Handouts": "11RvAwFTLe2taw5jh7pfb7FvQlxsU5TpF",
+        "Assignments": "1E72tq-78S9PCCgCLuBksugbIEQS4ocIt",
+        "Readings": "1JfqT54mtRN9CHfypUSdjwfNUfpDh2Pth",
+        "Exams": "1Fd-D79l0DPbN_OkE8BlI0V0KV_EMTOe4",
+        "Emails": "1ko_LW49XRzRinr6fLM3QmtyG8AXQgEgP"
+      }
+    },
+    {
+      "key": "Marketing",
+      "name": "Marketing (BUSN1-UC 943)",
+      "instructor": "Rios",
+      "meets": "TBA (not yet posted)",
+      "dates": "2026-10-22 to 2026-12-14",
+      "folderId": "1cxXcYfHBIhVpKJov-w_9_IG7pwSzaiRP",
+      "sub": {
+        "Handouts": "1rbBw_F_a7EDyNdGyHDSev9okX3RtjzVq",
+        "Assignments": "1YiwAPAQuPK3ooWG-5Q1bUpI58iLFWGut",
+        "Readings": "1x1X0Qe6lP6dsC-g0urP4W7y1tUOxvZ8H",
+        "Exams": "1a-F0xQe4L0yCHCOfbIYlSrSNvjqvSzFc",
+        "Emails": "1g3v4yeX8sXBgTVNYrbUiM6vbVvYodw5x"
+      }
+    },
+    {
+      "key": "DarwinToDNA",
+      "name": "Darwin to DNA (Tessler)",
+      "instructor": "Tessler",
+      "meets": "Wed 4:55-7:25 PM",
+      "dates": "2026-09-02 to 2026-12-09",
+      "folderId": "1Yn1F_h3bg8NE1IIKnvN0QjWBy5hasWaN",
+      "sub": {
+        "Handouts": "1gt_2B0QZGjACLmtyrB-FWkHEd22MbIeR",
+        "Assignments": "1E8y5qrT13kROE0OHGKF6WtQcSRkzzEZa",
+        "Readings": "1QsH6pZr5AFXBfpvI3sDc78K9PcqtK3g2",
+        "Exams": "1crbQrZmXsTRmbwh3o5U1Hb43uEhJ7sxX",
+        "Emails": "1d4_oXoy_FyQSSbiSJ_JzJP8pzzUN_ITI"
+      }
+    },
+    {
+      "key": "DAUS",
+      "name": "DAUS Seminar",
+      "instructor": "",
+      "meets": "Mon 11:00 AM-1:30 PM",
+      "dates": "2026-09-14 to 2026-10-19",
+      "folderId": "1jKgCCYDfa3qJGyMtwgkRvF023r7-dz3S",
+      "sub": {
+        "Handouts": "1tf4v1sJuHrDOc61pgByOXwNu9HVo1eK-",
+        "Assignments": "18y1vPG2TTU9v4mphuJ7TaFFZiGZ_id6n",
+        "Readings": "17i1v56IVqJixDZ4Fj5PsUQquG1ys4iAA",
+        "Exams": "1dwqcctDQZx2VLaKbBSRVU2OHCDmups8q",
+        "Emails": "12kyB73R5Tpt4l05puyDgScYnwMvgowr2"
+      }
+    }
+  ]
+}
