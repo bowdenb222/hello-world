@@ -3,6 +3,9 @@
   "rootFolderId": "1iQpM5LM4sXgcciB4_mY01L0cr9ZT1kub",
   "rootUrl": "https://drive.google.com/drive/folders/1iQpM5LM4sXgcciB4_mY01L0cr9ZT1kub",
   "inboxFolderId": "1On4oKFv_b0qo2aETrNcKewl-j3x3K7vw",
+  "adminFolderId": "1uEcjH4ke-FO96qITU3iyo-P9DK62nuV1",
+  "school": "NYU SPS — Division of Applied Undergraduate Studies (DAUS)",
+  "studentFirstName": "Kyle",
   "namingConvention": "<CODE> — <Type> — <Topic> — <YYYY-MM-DD>.<ext>",
   "types": ["Handouts", "Assignments", "Readings", "Exams", "Emails"],
   "courses": [
