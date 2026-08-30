@@ -108,8 +108,14 @@ const METHOD = { direct:'Direct sow', indoor:'Start indoors', transplant:'Set ou
 
 /* ── Geometry ─────────────────────────────────────────────────────────── */
 const ft = inches => inches / 12;
-function plantsInRow(c, widthFt){
-  return Math.max(1, Math.floor((widthFt * 12) / c.sp));
+
+/* Growing a vine vertically changes three numbers at once: the row narrows, the
+   in-row spacing tightens, and the plant gets tall — that last one feeds straight
+   into the shading check, so a trellised cucumber starts shading its neighbours. */
+function geo(c, trellised){ return (trellised && c.trellis) ? c.trellis : c; }
+
+function plantsInRow(g, widthFt){
+  return Math.max(1, Math.floor((widthFt * 12) / g.sp));
 }
 /* Lay rows out from the north edge southward; returns each row's band. */
 function layout(){
@@ -117,11 +123,18 @@ function layout(){
   let y = 0;
   return rows.map((r, i) => {
     const c = byId[r.cropId];
-    const depth = ft(c.row);
-    const band = { i, crop:c, uid:r.uid, top:y, depth, plants:plantsInRow(c, S.plotW) };
+    const g = geo(c, r.trellis);
+    const depth = ft(g.row);
+    const band = { i, crop:c, g, trellis:!!(r.trellis && c.trellis), uid:r.uid,
+                   top:y, depth, plants:plantsInRow(g, S.plotW) };
     y += depth;
     return band;
   });
+}
+/* Ground that trellising the vining rows would give back. */
+function trellisSaving(bands){
+  return bands.reduce((sum, b) =>
+    sum + (b.crop.trellis && !b.trellis ? ft(b.crop.row - b.crop.trellis.row) : 0), 0);
 }
 const usedDepth = bands => bands.reduce((s,b) => s + b.depth, 0);
 
@@ -133,10 +146,14 @@ function checks(bands){
   /* 1. Does it fit? */
   const used = usedDepth(bands);
   if (used > S.plotD + 0.01){
+    const save = trellisSaving(bands);
     out.push({ lvl:'bad', t:'Rows overflow the plot',
       m:`These rows need ${used.toFixed(1)} ft of depth but the plot is only ${S.plotD} ft. `
-      + `The last ${bands.filter(b => b.top >= S.plotD).length || 1} row(s) will not fit — `
-      + `remove one, or trellis the vining crops to shrink their row spacing.` });
+      + `The last ${bands.filter(b => b.top >= S.plotD).length || 1} row(s) will not fit. `
+      + (save > 0.4
+          ? `Trellising the vining rows would give back ${save.toFixed(1)} ft — ${
+              save >= used - S.plotD ? 'enough to fit everything.' : 'still short, so drop a row as well.'}`
+          : `Remove a row, or widen the plot.`) });
   }
 
   /* 2. Shading. Sun sits in the southern sky, so shadows fall north.
@@ -146,10 +163,11 @@ function checks(bands){
     for (let j = i + 1; j < bands.length; j++){
       const b = bands[j];
       const gap = b.top - (a.top + a.depth);
-      const diff = b.crop.ht - a.crop.ht;
-      if (diff >= 24 && gap < ft(b.crop.ht) * 0.6){
+      const diff = b.g.ht - a.g.ht;
+      if (diff >= 24 && gap < ft(b.g.ht) * 0.6){
         out.push({ lvl:'warn', t:'Shading problem',
-          m:`${b.crop.n} (${Math.round(ft(b.crop.ht))} ft tall) sits south of ${a.crop.n} and will `
+          m:`${b.crop.n}${b.trellis ? ', trellised to ' + Math.round(ft(b.g.ht)) + ' ft,'
+             : ` (${Math.round(ft(b.g.ht))} ft tall)`} sits south of ${a.crop.n} and will `
           + `shade it for much of the day. ${a.crop.n} needs full sun. Move the tall row to the `
           + `north edge of the plot.` });
         break;
@@ -357,11 +375,24 @@ function drawPlot(){
         stroke:col, 'stroke-width':1.4, 'stroke-dasharray':'3 4', 'stroke-opacity':.8 }));
     }
 
+    /* a trellised row reads as a fence line on its north edge */
+    if (b.trellis){
+      g.appendChild(el('line', { x1:0, y1:y + 0.9, x2:w, y2:y + 0.9,
+        stroke:col, 'stroke-width':1.8, 'stroke-opacity':.95 }));
+      const posts = Math.min(14, Math.max(3, Math.round(w / 26)));
+      for (let k = 0; k <= posts; k++){
+        const px2 = (w / posts) * k;
+        g.appendChild(el('line', { x1:px2, y1:y + 0.9, x2:px2, y2:y + Math.min(bh - 1, 6),
+          stroke:col, 'stroke-width':1.2, 'stroke-opacity':.8 }));
+      }
+    }
+
     if (bh >= 13){
       /* halo the label so it stays readable over the plant dots */
       g.appendChild(el('text', { x:5, y:y + bh/2 + 4, 'font-size':Math.min(11, bh*0.5),
         fill:'var(--ink)', 'font-weight':'600', stroke:'var(--panel)', 'stroke-width':3,
-        'paint-order':'stroke fill', 'stroke-linejoin':'round' }, `${b.crop.n} · ${n}`));
+        'paint-order':'stroke fill', 'stroke-linejoin':'round' },
+        `${b.crop.n} · ${n}${b.trellis ? ' ▦' : ''}`));
     }
     /* row depth tick on the left margin */
     g.appendChild(el('text', { x:-5, y:y + bh/2 + 3.5, 'font-size':8,
@@ -401,7 +432,9 @@ function drawPlot(){
     ['Depth used', used.toFixed(1) + ' ft'],
     ['Of plot', Math.round(used / D * 100) + '%'],
     ['Sq ft', Math.round(Math.min(used, D) * S.plotW)]
-  ].map(([k,v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+  ].concat(trellisSaving(bands) > 0.4
+    ? [['Trellising frees', trellisSaving(bands).toFixed(1) + ' ft']] : []
+  ).map(([k,v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
 }
 
 /* ── Row list ─────────────────────────────────────────────────────────── */
@@ -420,11 +453,32 @@ function drawRows(){
     const c = b.crop;
     const feeds = c.per > 0 ? Math.floor(b.plants / c.per) : 0;
     const serves = feeds >= 1 ? ` · feeds ~${feeds}` : '';
+    const saves = c.trellis ? ft(c.row - c.trellis.row) : 0;
+
+    /* Three states: it can be trellised, it is always trellised anyway, or it
+       cannot be — each says something different and useful. */
+    let support = '';
+    if (c.trellis){
+      support = `<button class="btn sm trelbtn" data-trellis="${b.i}"
+        aria-pressed="${b.trellis}" title="${b.trellis ? 'Growing on a trellis' : 'Grow on a trellis'}">
+        ${b.trellis ? '▦ On trellis' : '▦ Trellis'}</button>`;
+    } else if (c.needsSupport){
+      support = `<span class="tag" title="${c.needsSupport}">needs support</span>`;
+    } else if (c.noTrellis){
+      /* answers the obvious question of why this row has no trellis button;
+         the full reason sits in the crop's detail sheet */
+      support = `<span class="tag muted">needs ground</span>`;
+    }
+    const extra = b.trellis
+      ? ` · ${Math.round(ft(b.g.ht))} ft tall${saves > 0.2 ? ` · saves ${saves.toFixed(1)} ft` : ''}`
+      : '';
+
     return `<div class="rowitem">
       <span class="sw" style="background:${famColor(c)}"></span>
       <div class="meta">
         <b>${c.n}</b>
-        <span class="desc">${b.plants} plants · ${c.sp}″ apart · ${b.depth.toFixed(1)} ft row${serves}</span>
+        <span class="desc">${b.plants} plants · ${b.g.sp}″ apart · ${b.depth.toFixed(1)} ft row${serves}${extra}</span>
+        ${support ? `<div class="rowsupport">${support}</div>` : ''}
       </div>
       <div class="acts">
         <button class="iconbtn" data-up="${b.i}" aria-label="Move north">↑</button>
@@ -593,6 +647,13 @@ function openCrop(id){
       <dt>How much to plant</dt><dd>${feeds}</dd>
       ${c.succ ? `<dt>Succession</dt><dd>Re-sow every ${c.succ} days for a steady supply</dd>` : ''}
     </dl>
+    ${c.trellis ? `<div class="note"><h4>On a trellis</h4>
+      Rows ${c.trellis.row}″ apart instead of ${c.row}″, plants ${c.trellis.sp}″ apart,
+      growing to ${ft(c.trellis.ht).toFixed(1)} ft.
+      ${c.row > c.trellis.row ? `Gives back ${ft(c.row - c.trellis.row).toFixed(1)} ft of row spacing. ` : ''}
+      ${c.trellis.note}</div>` : ''}
+    ${c.needsSupport ? `<div class="note"><h4>Support</h4>${c.needsSupport}</div>` : ''}
+    ${c.noTrellis ? `<div class="note pest"><h4>Do not trellis</h4>${c.noTrellis}</div>` : ''}
     <div class="note"><h4>Growing it in Georgia</h4>${c.note}</div>
     <div class="note pest"><h4>Pests & problems</h4>${c.pest}</div>
     <div class="note"><h4>Rotation</h4>${FAMILIES[c.fam].warn}</div>
@@ -733,6 +794,11 @@ document.addEventListener('click', e => {
     drawGuide(); drawAlerts(); save(); return;
   }
   const rows = S.rows[S.season];
+  if (t.dataset.trellis != null){
+    const r = rows[+t.dataset.trellis];
+    r.trellis = !r.trellis;
+    renderMap(); save(); return;
+  }
   if (t.dataset.del != null){ rows.splice(+t.dataset.del, 1); renderMap(); save(); return; }
   if (t.dataset.up != null){
     const i = +t.dataset.up;

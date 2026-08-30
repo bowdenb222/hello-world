@@ -45,6 +45,7 @@ const CROPS = [
   yld:'8–15 lb per plant',
   sow:[{s:'Spring', m:'indoor', r:'last', a:-56, b:-42}, {s:'Spring', m:'transplant', r:'last', a:8, b:44}, {s:'Fall', m:'transplant', r:'first', a:-130, b:-106}],
   succ:0, comp:['basil','marigold','onion','carrot'], anta:['potato','corn','fennel'],
+  trellis:{ row:36, sp:18, ht:84, note:'Florida weave or single-string training instead of cages. Prune to one or two leaders and tie up weekly. Tighter spacing, easier picking, and far better airflow — which is the real argument for it in Georgia, where early blight and septoria travel through crowded foliage.' },
   note:'Stops setting fruit above ~92°F, so the spring crop stalls in July. A second transplant set out in early July fruits again in September. Cage or stake — sprawling vines rot on GA ground. Determinate types ripen all at once for canning; indeterminate keep going.',
   pest:'Early blight, bacterial wilt, hornworms, stink bugs. Mulch heavily to stop soil splash — that is how blight starts.' },
 
@@ -81,6 +82,7 @@ const CROPS = [
   yld:'3–5 lb per plant',
   sow:[{s:'Summer', m:'slip', r:'last', a:40, b:85}],
   succ:0, comp:['bean','okra'], anta:[],
+  noTrellis:'Grown for the roots, not the vines. Let them run — the sprawl smothers weeds, which is half the reason the crop is so easy here.',
   note:'The most reliable heavy crop in Georgia — thrives on heat, drought and poor sandy soil, which is exactly what August delivers. Grown from slips, not seed. Vines sprawl 6+ feet, so it smothers weeds. Cure at 80°F for 10 days after digging or it will not keep or sweeten.',
   pest:'Root-knot nematodes and wireworms. Choose nematode-resistant varieties like Beauregard.' },
 
@@ -230,6 +232,7 @@ const CROPS = [
   yld:'continuous through summer',
   sow:[{s:'Summer', m:'transplant', r:'last', a:40, b:85}],
   succ:0, comp:[], anta:[],
+  needsSupport:'A true climbing vine that needs a 6–8 ft trellis. The spacing here already assumes one.',
   note:'The answer to the Georgia summer greens gap. A vining tropical that thrives in the July heat that kills lettuce and spinach. Needs a trellis and climbs 8 feet. Leaves are thick and slightly mucilaginous — best cooked.',
   pest:'Almost none. Deer occasionally.' },
 
@@ -245,6 +248,7 @@ const CROPS = [
   yld:'1–2 lb per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:14, b:59}],
   succ:0, comp:['corn','cucumber','radish'], anta:['onion','garlic','beet'],
+  needsSupport:'Always grown on support — the row spacing here already assumes a 7 ft trellis.',
   note:'Produces two to three times as long as bush beans in the same footprint — worth the trellis. Needs a sturdy 7-foot support. Rattlesnake and Kentucky Wonder are proven Southern varieties. Being 7 feet tall, it belongs on the north edge or it shades the whole garden.',
   pest:'Mexican bean beetle, stink bugs.' },
 
@@ -259,6 +263,7 @@ const CROPS = [
   yld:'0.5 lb per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:29, b:90}],
   succ:0, comp:['corn','cucumber'], anta:['onion','garlic'],
+  trellis:{ row:36, sp:6, ht:84, note:'Pole lima varieties such as Christmas or King of the Garden climb 7 ft and crop far longer than bush types in the same ground. Needs a sturdy frame — a loaded pole lima is heavy in an August thunderstorm.' },
   note:'Handles Georgia heat far better than snap beans and is a Southern table staple. Needs warm soil — sowing into cold ground rots the seed. Pole types like Christmas produce much longer than bush types.',
   pest:'Stink bugs cause pitted, off-flavor seeds. Mexican bean beetle.' },
 
@@ -266,14 +271,16 @@ const CROPS = [
   yld:'0.25 lb per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:-61, b:-25}, {s:'Fall', m:'direct', r:'first', a:-80, b:-59}],
   succ:0, comp:['carrot','radish','turnip','cucumber'], anta:['onion','garlic'],
+  needsSupport:'Even bush types crop better on support. The spacing here assumes a short trellis or netting.',
   note:'Plant in late January here — they need to mature before the heat arrives, and a late sowing produces nothing. Tolerates frost easily. Even bush types climb better with a short trellis. Fixes nitrogen.',
   pest:'Powdery mildew as it warms. Aphids.' },
 
 /* ── CUCURBITS ────────────────────────────────────────────────────────── */
-{ id:'cucumber', n:'Cucumber', cat:'veg', fam:'cucurbitaceae', row:48, sp:12, dep:1, ht:72, dtm:55, per:3, sun:'full',
+{ id:'cucumber', n:'Cucumber', cat:'veg', fam:'cucurbitaceae', row:48, sp:12, dep:1, ht:15, dtm:55, per:3, sun:'full',
   yld:'10–20 fruit per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:10, b:70}, {s:'Fall', m:'direct', r:'first', a:-99, b:-75}],
   succ:21, comp:['corn','bean','radish','sunflower'], anta:['potato','sage'],
+  trellis:{ row:24, sp:8, ht:72, note:'The clearest win in the garden. Vertical cucumbers take a quarter of the ground, dry off faster after dew — which matters enormously against downy mildew in Georgia humidity — and hang straight instead of curling on the soil. A 6 ft cattle panel or nylon netting is plenty.' },
   note:'Trellising is worth it — straighter fruit, far less disease, and it drops the row footprint from 4 feet to about 18 inches. Pick every day once they start; one oversized cuke tells the plant to stop making more. A second sowing in early August beats the disease that takes out the spring planting.',
   pest:'Cucumber beetles spread bacterial wilt, which kills a plant in days. Downy mildew arrives every Georgia July like clockwork.' },
 
@@ -281,6 +288,7 @@ const CROPS = [
   yld:'6–10 lb per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:10, b:70}, {s:'Fall', m:'direct', r:'first', a:-99, b:-68}],
   succ:21, comp:['corn','bean','radish'], anta:['potato'],
+  trellis:{ row:30, sp:18, ht:48, note:'Squash does not climb, but it can be staked upright — tie the main stem to a stake and strip the lower leaves as it grows. Saves a foot of row and, more usefully, puts the lower stem in plain sight so you can catch vine borer eggs before they get in.' },
   note:'SQUASH VINE BORER DICTATES THE SCHEDULE. Moths lay eggs May through July, and they will kill a mature plant overnight. Plant early to get a harvest before they build up, then plant again in early August to fruit after the flight ends. Two plants is genuinely enough for most families.',
   pest:'Vine borer, squash bugs, pickleworm. Wrap the lower stem in foil, and check for orange eggs on stems twice a week.' },
 
@@ -288,6 +296,7 @@ const CROPS = [
   yld:'3–5 fruit per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:40, b:90}],
   succ:0, comp:['corn','bean'], anta:['potato'],
+  trellis:{ row:36, sp:18, ht:84, note:'Only for small-fruited types — acorn, delicata, small butternut. Anything over about 8 lb needs a sling per fruit and a genuinely strong frame. Halves the ground taken, and the airflow cuts powdery mildew noticeably.' },
   note:'Butternut and other C. moschata types resist vine borer far better than other squashes — a real advantage in Georgia. Vines run 10+ feet, so give them the garden edge to sprawl into. Cure in a warm room for 10 days and they keep until spring.',
   pest:'Squash bugs, pickleworm. Less borer damage with moschata types.' },
 
@@ -295,6 +304,7 @@ const CROPS = [
   yld:'2–4 fruit per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:85, b:110}],
   succ:0, comp:['corn','bean'], anta:['potato'],
+  noTrellis:'Fruit is far too heavy to hang. Pumpkins need ground to run across — allow the full 8 ft.',
   note:'Count backwards from Halloween: sow late June to early July in Middle Georgia. Sowing in May means rotten pumpkins by September. The biggest space hog in the garden — one hill takes 50 square feet.',
   pest:'Vine borer, squash bugs, powdery mildew.' },
 
@@ -302,6 +312,7 @@ const CROPS = [
   yld:'2–4 melons per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:24, b:80}],
   succ:0, comp:['corn','radish'], anta:['potato'],
+  noTrellis:'Full-size melons will tear themselves off any trellis. Only icebox types under about 8 lb are practical vertically, and each still needs its own sling.',
   note:'Georgia grows some of the best watermelons in the country — hot days and sandy soil are exactly right. Ripe when the curly tendril nearest the fruit dries brown and the ground spot turns creamy yellow. Thumping is unreliable.',
   pest:'Cucumber beetles, anthracnose, root-knot nematodes.' },
 
@@ -309,6 +320,7 @@ const CROPS = [
   yld:'3–5 melons per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:24, b:80}],
   succ:0, comp:['corn','radish'], anta:['potato'],
+  trellis:{ row:30, sp:12, ht:72, note:'Workable, but each melon needs its own sling once it reaches tennis-ball size — old t-shirt or netting tied to the frame. Without slings the fruit tears loose at the stem. Halves the ground taken and keeps the fruit off wet soil.' },
   note:'Ready when the stem slips from the fruit with gentle thumb pressure — "full slip." Cut too early and it never sweetens. Mulch under the fruit to stop ground rot in humid weather.',
   pest:'Downy mildew, cucumber beetles, pickleworm.' },
 

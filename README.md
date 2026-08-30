@@ -15,6 +15,14 @@ one becomes a row drawn to scale, stacked from the north edge south, with the
 correct row spacing and plant count worked out for you. Reorder rows to see how
 the layout changes.
 
+**Trellising** — Vining crops carry a second set of measurements for growing
+vertically. Toggle a row onto a trellis and its row spacing, plant spacing and
+height all change together, which is the point: a trellised cucumber drops from a
+4 ft row to 2 ft, but grows from 15 inches tall to 6 ft, so it starts shading
+whatever sits north of it. The shading check picks that up immediately. Crops that
+are always grown on support are badged, and crops whose fruit is too heavy to hang
+say so instead of offering the option.
+
 **Checks** — Every layout is validated against:
 
 | Check | What it catches |
@@ -27,6 +35,9 @@ the layout changes.
 | Perennials | Permanent plantings sitting in a bed you plan to till |
 | Corn block | Sweet corn in a single row, which pollinates badly |
 | Blueberry pH | Blueberries sharing ground with crops that need neutral soil |
+
+When rows overflow the plot, the check works out whether trellising the vining
+rows would recover enough ground to fit everything, and says so.
 
 **Calendar** — What to plant this week, plus every month of the year showing
 both newly opening windows and ones still open. All dates are computed from your
@@ -129,7 +140,13 @@ app re-time itself for any region:
 ```
 
 `r:'last'` anchors to the last spring frost, `r:'first'` to the first fall
-frost. Bump `CACHE` in `sw.js` after changing anything, or phones keep serving
+frost.
+
+Three optional keys cover vertical growing. `trellis:{row, sp, ht, note}` is the
+alternate geometry, and a row toggled onto a trellis uses it wholesale.
+`needsSupport:'…'` marks a crop that is always grown on support, so the base
+measurements already assume a trellis. `noTrellis:'…'` explains why a crop should
+stay on the ground — used for pumpkins, watermelons and sweet potatoes. Bump `CACHE` in `sw.js` after changing anything, or phones keep serving
 the cached copy.
 
 ## Notes on the data

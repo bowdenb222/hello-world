@@ -178,3 +178,12 @@ svg.plot text{font-family:system-ui,sans-serif}
 /* keyboard focus must stay visible — this gets operated one-handed outdoors */
 :focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* trellis toggle inside a row */
+.rowsupport{margin-top:6px}
+.btn.sm.trelbtn{font-size:11.5px;padding:4px 9px;min-height:30px;border-radius:7px}
+.btn.sm.trelbtn[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+:root[data-theme="dark"] .btn.sm.trelbtn[aria-pressed="true"]{color:#16181a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])
+  .btn.sm.trelbtn[aria-pressed="true"]{color:#16181a}}
+.tag.muted{background:var(--bg);color:var(--muted);border:1px solid var(--line)}

@@ -191,6 +191,15 @@ svg.plot text{font-family:system-ui,sans-serif}
 :focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* trellis toggle inside a row */
+.rowsupport{margin-top:6px}
+.btn.sm.trelbtn{font-size:11.5px;padding:4px 9px;min-height:30px;border-radius:7px}
+.btn.sm.trelbtn[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+:root[data-theme="dark"] .btn.sm.trelbtn[aria-pressed="true"]{color:#16181a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])
+  .btn.sm.trelbtn[aria-pressed="true"]{color:#16181a}}
+.tag.muted{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+
 </style>
 </head>
 <body>
@@ -479,6 +488,7 @@ const CROPS = [
   yld:'8–15 lb per plant',
   sow:[{s:'Spring', m:'indoor', r:'last', a:-56, b:-42}, {s:'Spring', m:'transplant', r:'last', a:8, b:44}, {s:'Fall', m:'transplant', r:'first', a:-130, b:-106}],
   succ:0, comp:['basil','marigold','onion','carrot'], anta:['potato','corn','fennel'],
+  trellis:{ row:36, sp:18, ht:84, note:'Florida weave or single-string training instead of cages. Prune to one or two leaders and tie up weekly. Tighter spacing, easier picking, and far better airflow — which is the real argument for it in Georgia, where early blight and septoria travel through crowded foliage.' },
   note:'Stops setting fruit above ~92°F, so the spring crop stalls in July. A second transplant set out in early July fruits again in September. Cage or stake — sprawling vines rot on GA ground. Determinate types ripen all at once for canning; indeterminate keep going.',
   pest:'Early blight, bacterial wilt, hornworms, stink bugs. Mulch heavily to stop soil splash — that is how blight starts.' },
 
@@ -515,6 +525,7 @@ const CROPS = [
   yld:'3–5 lb per plant',
   sow:[{s:'Summer', m:'slip', r:'last', a:40, b:85}],
   succ:0, comp:['bean','okra'], anta:[],
+  noTrellis:'Grown for the roots, not the vines. Let them run — the sprawl smothers weeds, which is half the reason the crop is so easy here.',
   note:'The most reliable heavy crop in Georgia — thrives on heat, drought and poor sandy soil, which is exactly what August delivers. Grown from slips, not seed. Vines sprawl 6+ feet, so it smothers weeds. Cure at 80°F for 10 days after digging or it will not keep or sweeten.',
   pest:'Root-knot nematodes and wireworms. Choose nematode-resistant varieties like Beauregard.' },
 
@@ -664,6 +675,7 @@ const CROPS = [
   yld:'continuous through summer',
   sow:[{s:'Summer', m:'transplant', r:'last', a:40, b:85}],
   succ:0, comp:[], anta:[],
+  needsSupport:'A true climbing vine that needs a 6–8 ft trellis. The spacing here already assumes one.',
   note:'The answer to the Georgia summer greens gap. A vining tropical that thrives in the July heat that kills lettuce and spinach. Needs a trellis and climbs 8 feet. Leaves are thick and slightly mucilaginous — best cooked.',
   pest:'Almost none. Deer occasionally.' },
 
@@ -679,6 +691,7 @@ const CROPS = [
   yld:'1–2 lb per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:14, b:59}],
   succ:0, comp:['corn','cucumber','radish'], anta:['onion','garlic','beet'],
+  needsSupport:'Always grown on support — the row spacing here already assumes a 7 ft trellis.',
   note:'Produces two to three times as long as bush beans in the same footprint — worth the trellis. Needs a sturdy 7-foot support. Rattlesnake and Kentucky Wonder are proven Southern varieties. Being 7 feet tall, it belongs on the north edge or it shades the whole garden.',
   pest:'Mexican bean beetle, stink bugs.' },
 
@@ -693,6 +706,7 @@ const CROPS = [
   yld:'0.5 lb per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:29, b:90}],
   succ:0, comp:['corn','cucumber'], anta:['onion','garlic'],
+  trellis:{ row:36, sp:6, ht:84, note:'Pole lima varieties such as Christmas or King of the Garden climb 7 ft and crop far longer than bush types in the same ground. Needs a sturdy frame — a loaded pole lima is heavy in an August thunderstorm.' },
   note:'Handles Georgia heat far better than snap beans and is a Southern table staple. Needs warm soil — sowing into cold ground rots the seed. Pole types like Christmas produce much longer than bush types.',
   pest:'Stink bugs cause pitted, off-flavor seeds. Mexican bean beetle.' },
 
@@ -700,14 +714,16 @@ const CROPS = [
   yld:'0.25 lb per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:-61, b:-25}, {s:'Fall', m:'direct', r:'first', a:-80, b:-59}],
   succ:0, comp:['carrot','radish','turnip','cucumber'], anta:['onion','garlic'],
+  needsSupport:'Even bush types crop better on support. The spacing here assumes a short trellis or netting.',
   note:'Plant in late January here — they need to mature before the heat arrives, and a late sowing produces nothing. Tolerates frost easily. Even bush types climb better with a short trellis. Fixes nitrogen.',
   pest:'Powdery mildew as it warms. Aphids.' },
 
 /* ── CUCURBITS ────────────────────────────────────────────────────────── */
-{ id:'cucumber', n:'Cucumber', cat:'veg', fam:'cucurbitaceae', row:48, sp:12, dep:1, ht:72, dtm:55, per:3, sun:'full',
+{ id:'cucumber', n:'Cucumber', cat:'veg', fam:'cucurbitaceae', row:48, sp:12, dep:1, ht:15, dtm:55, per:3, sun:'full',
   yld:'10–20 fruit per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:10, b:70}, {s:'Fall', m:'direct', r:'first', a:-99, b:-75}],
   succ:21, comp:['corn','bean','radish','sunflower'], anta:['potato','sage'],
+  trellis:{ row:24, sp:8, ht:72, note:'The clearest win in the garden. Vertical cucumbers take a quarter of the ground, dry off faster after dew — which matters enormously against downy mildew in Georgia humidity — and hang straight instead of curling on the soil. A 6 ft cattle panel or nylon netting is plenty.' },
   note:'Trellising is worth it — straighter fruit, far less disease, and it drops the row footprint from 4 feet to about 18 inches. Pick every day once they start; one oversized cuke tells the plant to stop making more. A second sowing in early August beats the disease that takes out the spring planting.',
   pest:'Cucumber beetles spread bacterial wilt, which kills a plant in days. Downy mildew arrives every Georgia July like clockwork.' },
 
@@ -715,6 +731,7 @@ const CROPS = [
   yld:'6–10 lb per plant',
   sow:[{s:'Spring', m:'direct', r:'last', a:10, b:70}, {s:'Fall', m:'direct', r:'first', a:-99, b:-68}],
   succ:21, comp:['corn','bean','radish'], anta:['potato'],
+  trellis:{ row:30, sp:18, ht:48, note:'Squash does not climb, but it can be staked upright — tie the main stem to a stake and strip the lower leaves as it grows. Saves a foot of row and, more usefully, puts the lower stem in plain sight so you can catch vine borer eggs before they get in.' },
   note:'SQUASH VINE BORER DICTATES THE SCHEDULE. Moths lay eggs May through July, and they will kill a mature plant overnight. Plant early to get a harvest before they build up, then plant again in early August to fruit after the flight ends. Two plants is genuinely enough for most families.',
   pest:'Vine borer, squash bugs, pickleworm. Wrap the lower stem in foil, and check for orange eggs on stems twice a week.' },
 
@@ -722,6 +739,7 @@ const CROPS = [
   yld:'3–5 fruit per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:40, b:90}],
   succ:0, comp:['corn','bean'], anta:['potato'],
+  trellis:{ row:36, sp:18, ht:84, note:'Only for small-fruited types — acorn, delicata, small butternut. Anything over about 8 lb needs a sling per fruit and a genuinely strong frame. Halves the ground taken, and the airflow cuts powdery mildew noticeably.' },
   note:'Butternut and other C. moschata types resist vine borer far better than other squashes — a real advantage in Georgia. Vines run 10+ feet, so give them the garden edge to sprawl into. Cure in a warm room for 10 days and they keep until spring.',
   pest:'Squash bugs, pickleworm. Less borer damage with moschata types.' },
 
@@ -729,6 +747,7 @@ const CROPS = [
   yld:'2–4 fruit per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:85, b:110}],
   succ:0, comp:['corn','bean'], anta:['potato'],
+  noTrellis:'Fruit is far too heavy to hang. Pumpkins need ground to run across — allow the full 8 ft.',
   note:'Count backwards from Halloween: sow late June to early July in Middle Georgia. Sowing in May means rotten pumpkins by September. The biggest space hog in the garden — one hill takes 50 square feet.',
   pest:'Vine borer, squash bugs, powdery mildew.' },
 
@@ -736,6 +755,7 @@ const CROPS = [
   yld:'2–4 melons per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:24, b:80}],
   succ:0, comp:['corn','radish'], anta:['potato'],
+  noTrellis:'Full-size melons will tear themselves off any trellis. Only icebox types under about 8 lb are practical vertically, and each still needs its own sling.',
   note:'Georgia grows some of the best watermelons in the country — hot days and sandy soil are exactly right. Ripe when the curly tendril nearest the fruit dries brown and the ground spot turns creamy yellow. Thumping is unreliable.',
   pest:'Cucumber beetles, anthracnose, root-knot nematodes.' },
 
@@ -743,6 +763,7 @@ const CROPS = [
   yld:'3–5 melons per plant',
   sow:[{s:'Summer', m:'direct', r:'last', a:24, b:80}],
   succ:0, comp:['corn','radish'], anta:['potato'],
+  trellis:{ row:30, sp:12, ht:72, note:'Workable, but each melon needs its own sling once it reaches tennis-ball size — old t-shirt or netting tied to the frame. Without slings the fruit tears loose at the stem. Halves the ground taken and keeps the fruit off wet soil.' },
   note:'Ready when the stem slips from the fruit with gentle thumb pressure — "full slip." Cut too early and it never sweetens. Mulch under the fruit to stop ground rot in humid weather.',
   pest:'Downy mildew, cucumber beetles, pickleworm.' },
 
@@ -1057,8 +1078,14 @@ const METHOD = { direct:'Direct sow', indoor:'Start indoors', transplant:'Set ou
 
 /* ── Geometry ─────────────────────────────────────────────────────────── */
 const ft = inches => inches / 12;
-function plantsInRow(c, widthFt){
-  return Math.max(1, Math.floor((widthFt * 12) / c.sp));
+
+/* Growing a vine vertically changes three numbers at once: the row narrows, the
+   in-row spacing tightens, and the plant gets tall — that last one feeds straight
+   into the shading check, so a trellised cucumber starts shading its neighbours. */
+function geo(c, trellised){ return (trellised && c.trellis) ? c.trellis : c; }
+
+function plantsInRow(g, widthFt){
+  return Math.max(1, Math.floor((widthFt * 12) / g.sp));
 }
 /* Lay rows out from the north edge southward; returns each row's band. */
 function layout(){
@@ -1066,11 +1093,18 @@ function layout(){
   let y = 0;
   return rows.map((r, i) => {
     const c = byId[r.cropId];
-    const depth = ft(c.row);
-    const band = { i, crop:c, uid:r.uid, top:y, depth, plants:plantsInRow(c, S.plotW) };
+    const g = geo(c, r.trellis);
+    const depth = ft(g.row);
+    const band = { i, crop:c, g, trellis:!!(r.trellis && c.trellis), uid:r.uid,
+                   top:y, depth, plants:plantsInRow(g, S.plotW) };
     y += depth;
     return band;
   });
+}
+/* Ground that trellising the vining rows would give back. */
+function trellisSaving(bands){
+  return bands.reduce((sum, b) =>
+    sum + (b.crop.trellis && !b.trellis ? ft(b.crop.row - b.crop.trellis.row) : 0), 0);
 }
 const usedDepth = bands => bands.reduce((s,b) => s + b.depth, 0);
 
@@ -1082,10 +1116,14 @@ function checks(bands){
   /* 1. Does it fit? */
   const used = usedDepth(bands);
   if (used > S.plotD + 0.01){
+    const save = trellisSaving(bands);
     out.push({ lvl:'bad', t:'Rows overflow the plot',
       m:`These rows need ${used.toFixed(1)} ft of depth but the plot is only ${S.plotD} ft. `
-      + `The last ${bands.filter(b => b.top >= S.plotD).length || 1} row(s) will not fit — `
-      + `remove one, or trellis the vining crops to shrink their row spacing.` });
+      + `The last ${bands.filter(b => b.top >= S.plotD).length || 1} row(s) will not fit. `
+      + (save > 0.4
+          ? `Trellising the vining rows would give back ${save.toFixed(1)} ft — ${
+              save >= used - S.plotD ? 'enough to fit everything.' : 'still short, so drop a row as well.'}`
+          : `Remove a row, or widen the plot.`) });
   }
 
   /* 2. Shading. Sun sits in the southern sky, so shadows fall north.
@@ -1095,10 +1133,11 @@ function checks(bands){
     for (let j = i + 1; j < bands.length; j++){
       const b = bands[j];
       const gap = b.top - (a.top + a.depth);
-      const diff = b.crop.ht - a.crop.ht;
-      if (diff >= 24 && gap < ft(b.crop.ht) * 0.6){
+      const diff = b.g.ht - a.g.ht;
+      if (diff >= 24 && gap < ft(b.g.ht) * 0.6){
         out.push({ lvl:'warn', t:'Shading problem',
-          m:`${b.crop.n} (${Math.round(ft(b.crop.ht))} ft tall) sits south of ${a.crop.n} and will `
+          m:`${b.crop.n}${b.trellis ? ', trellised to ' + Math.round(ft(b.g.ht)) + ' ft,'
+             : ` (${Math.round(ft(b.g.ht))} ft tall)`} sits south of ${a.crop.n} and will `
           + `shade it for much of the day. ${a.crop.n} needs full sun. Move the tall row to the `
           + `north edge of the plot.` });
         break;
@@ -1306,11 +1345,24 @@ function drawPlot(){
         stroke:col, 'stroke-width':1.4, 'stroke-dasharray':'3 4', 'stroke-opacity':.8 }));
     }
 
+    /* a trellised row reads as a fence line on its north edge */
+    if (b.trellis){
+      g.appendChild(el('line', { x1:0, y1:y + 0.9, x2:w, y2:y + 0.9,
+        stroke:col, 'stroke-width':1.8, 'stroke-opacity':.95 }));
+      const posts = Math.min(14, Math.max(3, Math.round(w / 26)));
+      for (let k = 0; k <= posts; k++){
+        const px2 = (w / posts) * k;
+        g.appendChild(el('line', { x1:px2, y1:y + 0.9, x2:px2, y2:y + Math.min(bh - 1, 6),
+          stroke:col, 'stroke-width':1.2, 'stroke-opacity':.8 }));
+      }
+    }
+
     if (bh >= 13){
       /* halo the label so it stays readable over the plant dots */
       g.appendChild(el('text', { x:5, y:y + bh/2 + 4, 'font-size':Math.min(11, bh*0.5),
         fill:'var(--ink)', 'font-weight':'600', stroke:'var(--panel)', 'stroke-width':3,
-        'paint-order':'stroke fill', 'stroke-linejoin':'round' }, `${b.crop.n} · ${n}`));
+        'paint-order':'stroke fill', 'stroke-linejoin':'round' },
+        `${b.crop.n} · ${n}${b.trellis ? ' ▦' : ''}`));
     }
     /* row depth tick on the left margin */
     g.appendChild(el('text', { x:-5, y:y + bh/2 + 3.5, 'font-size':8,
@@ -1350,7 +1402,9 @@ function drawPlot(){
     ['Depth used', used.toFixed(1) + ' ft'],
     ['Of plot', Math.round(used / D * 100) + '%'],
     ['Sq ft', Math.round(Math.min(used, D) * S.plotW)]
-  ].map(([k,v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+  ].concat(trellisSaving(bands) > 0.4
+    ? [['Trellising frees', trellisSaving(bands).toFixed(1) + ' ft']] : []
+  ).map(([k,v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
 }
 
 /* ── Row list ─────────────────────────────────────────────────────────── */
@@ -1369,11 +1423,32 @@ function drawRows(){
     const c = b.crop;
     const feeds = c.per > 0 ? Math.floor(b.plants / c.per) : 0;
     const serves = feeds >= 1 ? ` · feeds ~${feeds}` : '';
+    const saves = c.trellis ? ft(c.row - c.trellis.row) : 0;
+
+    /* Three states: it can be trellised, it is always trellised anyway, or it
+       cannot be — each says something different and useful. */
+    let support = '';
+    if (c.trellis){
+      support = `<button class="btn sm trelbtn" data-trellis="${b.i}"
+        aria-pressed="${b.trellis}" title="${b.trellis ? 'Growing on a trellis' : 'Grow on a trellis'}">
+        ${b.trellis ? '▦ On trellis' : '▦ Trellis'}</button>`;
+    } else if (c.needsSupport){
+      support = `<span class="tag" title="${c.needsSupport}">needs support</span>`;
+    } else if (c.noTrellis){
+      /* answers the obvious question of why this row has no trellis button;
+         the full reason sits in the crop's detail sheet */
+      support = `<span class="tag muted">needs ground</span>`;
+    }
+    const extra = b.trellis
+      ? ` · ${Math.round(ft(b.g.ht))} ft tall${saves > 0.2 ? ` · saves ${saves.toFixed(1)} ft` : ''}`
+      : '';
+
     return `<div class="rowitem">
       <span class="sw" style="background:${famColor(c)}"></span>
       <div class="meta">
         <b>${c.n}</b>
-        <span class="desc">${b.plants} plants · ${c.sp}″ apart · ${b.depth.toFixed(1)} ft row${serves}</span>
+        <span class="desc">${b.plants} plants · ${b.g.sp}″ apart · ${b.depth.toFixed(1)} ft row${serves}${extra}</span>
+        ${support ? `<div class="rowsupport">${support}</div>` : ''}
       </div>
       <div class="acts">
         <button class="iconbtn" data-up="${b.i}" aria-label="Move north">↑</button>
@@ -1542,6 +1617,13 @@ function openCrop(id){
       <dt>How much to plant</dt><dd>${feeds}</dd>
       ${c.succ ? `<dt>Succession</dt><dd>Re-sow every ${c.succ} days for a steady supply</dd>` : ''}
     </dl>
+    ${c.trellis ? `<div class="note"><h4>On a trellis</h4>
+      Rows ${c.trellis.row}″ apart instead of ${c.row}″, plants ${c.trellis.sp}″ apart,
+      growing to ${ft(c.trellis.ht).toFixed(1)} ft.
+      ${c.row > c.trellis.row ? `Gives back ${ft(c.row - c.trellis.row).toFixed(1)} ft of row spacing. ` : ''}
+      ${c.trellis.note}</div>` : ''}
+    ${c.needsSupport ? `<div class="note"><h4>Support</h4>${c.needsSupport}</div>` : ''}
+    ${c.noTrellis ? `<div class="note pest"><h4>Do not trellis</h4>${c.noTrellis}</div>` : ''}
     <div class="note"><h4>Growing it in Georgia</h4>${c.note}</div>
     <div class="note pest"><h4>Pests & problems</h4>${c.pest}</div>
     <div class="note"><h4>Rotation</h4>${FAMILIES[c.fam].warn}</div>
@@ -1682,6 +1764,11 @@ document.addEventListener('click', e => {
     drawGuide(); drawAlerts(); save(); return;
   }
   const rows = S.rows[S.season];
+  if (t.dataset.trellis != null){
+    const r = rows[+t.dataset.trellis];
+    r.trellis = !r.trellis;
+    renderMap(); save(); return;
+  }
   if (t.dataset.del != null){ rows.splice(+t.dataset.del, 1); renderMap(); save(); return; }
   if (t.dataset.up != null){
     const i = +t.dataset.up;
