@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Georgia Garden Planner</title>
+<meta name="description" content="Row-garden planner for Georgia: planting windows, spacing, rotation and a scale garden map.">
+<meta name="theme-color" content="#3f6b3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GA Garden">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="top">
+  <h1>Georgia Garden Planner</h1>
+  <span class="region" id="regionLabel"></span>
+</header>
+
+<main>
+
+<!-- ══ MAP ══════════════════════════════════════════════════════════ -->
+<section class="view on" id="v-map">
+  <div class="card">
+    <h2>Plot size</h2>
+    <div class="row2">
+      <div class="field">
+        <label for="plotW">Width — east to west (ft)</label>
+        <input type="number" id="plotW" min="2" max="300" step="1" value="20">
+      </div>
+      <div class="field">
+        <label for="plotD">Depth — north to south (ft)</label>
+        <input type="number" id="plotD" min="2" max="300" step="1" value="30">
+      </div>
+    </div>
+    <p class="sub" style="margin:9px 0 0">
+      Rows run east–west, stacked from the north edge down. That orientation gives
+      every row even sun and lets you keep tall crops out of everything else's light.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Season</h2>
+    <div class="chips" id="seasonChips"></div>
+    <p class="sub" style="margin:9px 0 0" id="seasonNote"></p>
+  </div>
+
+  <div class="card">
+    <h2>Garden map <span class="sub" style="font-weight:400">— to scale</span></h2>
+    <div class="plotwrap"><svg class="plot" id="plotSvg"></svg></div>
+    <div class="stats" style="margin-top:11px" id="plotStats"></div>
+  </div>
+
+  <div class="card">
+    <h2>Checks</h2>
+    <div id="alerts"></div>
+  </div>
+
+  <div class="card">
+    <h2>Rows <span class="sub" style="font-weight:400" id="rowCount"></span></h2>
+    <div id="rowList"></div>
+    <div class="row2" style="margin-top:11px">
+      <select id="addCrop" aria-label="Choose a crop to add"></select>
+      <button class="btn primary" id="addBtn" style="flex:none">Add row</button>
+    </div>
+    <p class="sub" style="margin:9px 0 0">
+      Crops suited to the selected season are listed first. Use ↑ ↓ to move a row —
+      position decides shading and which crops end up neighbours.
+    </p>
+  </div>
+</section>
+
+<!-- ══ CALENDAR ═════════════════════════════════════════════════════ -->
+<section class="view" id="v-cal">
+  <div class="card">
+    <h2>Plant this week</h2>
+    <div id="nowList"></div>
+  </div>
+  <div class="card">
+    <h2>Year at a glance</h2>
+    <p class="sub" style="margin:-4px 0 10px">
+      Computed from your frost dates, not a generic national chart.
+    </p>
+    <div id="calList"></div>
+    <div class="legend">
+      <span><i style="background:var(--green)"></i>Sow / set out</span>
+      <span><i style="background:var(--accent)"></i>Start indoors</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CROPS ════════════════════════════════════════════════════════ -->
+<section class="view" id="v-crops">
+  <div class="card">
+    <input type="search" id="cropSearch" placeholder="Search 65 crops…" aria-label="Search crops">
+    <div class="chips" style="margin-top:10px" id="catChips"></div>
+  </div>
+  <div class="card">
+    <div class="croplist" id="cropList"></div>
+  </div>
+</section>
+
+<!-- ══ GUIDE / SETUP ════════════════════════════════════════════════ -->
+<section class="view" id="v-guide">
+  <div class="card">
+    <h2>Your region</h2>
+    <div class="field" style="margin-bottom:10px">
+      <label for="regionSel">Region</label>
+      <select id="regionSel"></select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="lastFrost">Avg. last spring frost</label>
+        <input type="text" id="lastFrost" placeholder="MM-DD" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="firstFrost">Avg. first fall frost</label>
+        <input type="text" id="firstFrost" placeholder="MM-DD" inputmode="numeric">
+      </div>
+    </div>
+    <p class="sub" style="margin:9px 0 0">
+      Every date in this app is calculated from these two. Your own yard may run a
+      week either side of the regional average — a low spot frosts earlier.
+      Adjust these once and the whole calendar re-times itself.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Last year's rows</h2>
+    <p class="sub" style="margin:-4px 0 10px">
+      Record what grew here last season and the map will warn you before you repeat a
+      plant family in the same ground. This is the single most useful thing in the app
+      — family repeats are what carry disease and root-knot nematodes forward.
+    </p>
+    <div class="chips" id="histChips"></div>
+    <p class="sub" style="margin:9px 0 0" id="histNote"></p>
+  </div>
+
+  <div class="card">
+    <h2>The July–August gap</h2>
+    <p style="margin:0 0 8px;font-size:13.5px">
+      Middle Georgia has a genuine dead zone in midsummer. Above about 92°F tomatoes
+      and beans drop their blossoms, lettuce bolts, and brassicas simply fail. Plan
+      around it rather than fighting it — these crops actually enjoy that heat:
+    </p>
+    <div id="heatCrops" class="croplist"></div>
+  </div>
+
+  <div class="card">
+    <h2>How the checks work</h2>
+    <div class="note">
+      <h4>Plant family — a hard rule</h4>
+      Diseases and nematodes live in the soil and attack whole families, not single
+      crops. Tomatoes, peppers, eggplant and potatoes are all nightshades and all feed
+      the same pathogens. Leave three years before a family returns to the same ground.
+      This is the rule worth actually following.
+    </div>
+    <div class="note">
+      <h4>Shading — physics, not opinion</h4>
+      The sun stays in the southern sky, so every plant throws its shadow north. A row
+      of corn or okra on the south side will shade everything behind it. The app flags a
+      row when something noticeably taller sits south of it, close enough to matter.
+    </div>
+    <div class="note pest">
+      <h4>Companion planting — treat with suspicion</h4>
+      Most "these two love each other" pairings are folklore repeated for a century
+      without evidence. A few effects are real: French marigold grown as a full cover
+      crop suppresses root-knot nematodes, fennel genuinely stunts its neighbours, and
+      tall crops can provide useful afternoon shade. Companion suggestions here are
+      marked as traditional. The family rule above is the one backed by evidence.
+    </div>
+    <div class="note pest">
+      <h4>Get a soil test before anything else</h4>
+      UGA Extension runs soil tests through your county office for a small fee. Georgia
+      red clay is usually acidic and low in phosphorus, and guessing at lime and
+      fertiliser wastes more money than the test costs. Blueberries need pH 4.5–5.5,
+      which fights every other crop in the garden — that alone is a reason to test.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>About</h2>
+    <p class="sub" style="margin:0">
+      Works offline once loaded. Everything you enter stays on this phone — no account,
+      no server. Planting windows follow UGA Extension guidance for Georgia and are
+      averages: watch the actual forecast before setting out tender transplants.
+    </p>
+    <button class="btn sm" id="resetBtn" style="margin-top:11px">Reset all saved data</button>
+  </div>
+</section>
+
+</main>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-view="map" aria-selected="true">
+    <svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18"/><circle cx="7" cy="5" r="1.4"/><circle cx="14" cy="12" r="1.4"/><circle cx="10" cy="19" r="1.4"/></svg>Map</button>
+  <button role="tab" data-view="cal" aria-selected="false">
+    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</button>
+  <button role="tab" data-view="crops" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M12 21c0-6 3-9 8-10-1 6-4 9-8 10zM12 21c0-5-2.5-7.5-7-8.5.8 5 3.5 7.5 7 8.5zM12 21V9"/></svg>Crops</button>
+  <button role="tab" data-view="guide" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 016.5 3H19v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H19v3H6.5"/></svg>Guide</button>
+</nav>
+
+<div class="sheet" id="sheet">
+  <div class="scrim" data-close></div>
+  <div class="panel" id="sheetPanel" role="dialog" aria-modal="true"></div>
+</div>
+
+<script src="js/crops.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
