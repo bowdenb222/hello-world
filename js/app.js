@@ -35,15 +35,45 @@ const DEFAULTS = () => ({
   region:'middle', last:REGIONS.middle.last, first:REGIONS.middle.first,
   plotW:20, plotD:30, season:'Spring',
   rows:{ Spring:[], Summer:[], Fall:[], Winter:[] },
-  history:[], cat:'all', q:''
+  history:[], cat:'all', q:'',
+  plans:[], planId:null
 });
 let S = DEFAULTS();
 const KEY = 'ga-garden-v1';
+
+/* Some browsers refuse storage outright: private windows, and Safari's cross-site
+   tracking prevention when the page is embedded in an iframe from another origin.
+   Losing a garden plan silently is worse than being told, so probe once at startup
+   and warn the user if writes will not stick. */
+let STORAGE_OK = (function(){
+  try {
+    localStorage.setItem('__probe__', '1');
+    localStorage.removeItem('__probe__');
+    return true;
+  } catch (e) { return false; }
+})();
+
 function load(){
-  try{ const r = JSON.parse(localStorage.getItem(KEY)); if(r) S = Object.assign(DEFAULTS(), r); }
-  catch(e){/* corrupt or unavailable storage — fall back to defaults */}
+  if (!STORAGE_OK) return;
+  try {
+    const r = JSON.parse(localStorage.getItem(KEY));
+    if (r) S = Object.assign(DEFAULTS(), r);
+  } catch(e){/* corrupt entry — start clean rather than dying on load */}
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function save(){
+  if (!STORAGE_OK) return;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ STORAGE_OK = false; drawStorageWarning(); }
+}
+function drawStorageWarning(){
+  const host = document.getElementById('storageWarn');
+  if (!host) return;
+  host.innerHTML = STORAGE_OK ? '' : `<div class="alert bad">
+    <b>This browser will not save your work</b>
+    Saved data is blocked here, so your plan disappears when you close the tab. Two
+    fixes: install this to your home screen and open it from that icon, or use
+    <b>Copy my data</b> under Guide to keep a backup you can paste back in.</div>`;
+}
 
 /* ── Dates ────────────────────────────────────────────────────────────── */
 const MON = ['January','February','March','April','May','June','July','August',
@@ -201,6 +231,85 @@ function checks(bands){
   return out;
 }
 
+/* ── Saved plans ──────────────────────────────────────────────────────────
+   The working layout is autosaved on every change, so reopening the app resumes
+   exactly where you were. A named plan is a separate snapshot on top of that, so
+   you can keep this year and next, or the front plot and the back. */
+function snapshot(){
+  return {
+    plotW: S.plotW, plotD: S.plotD,
+    rows: JSON.parse(JSON.stringify(S.rows)),
+    history: S.history.slice()
+  };
+}
+function planSummary(p){
+  const n = SEASONS.reduce((a,s) => a + (p.rows[s] ? p.rows[s].length : 0), 0);
+  return `${p.plotW}\u00d7${p.plotD} ft \u00b7 ${n} row${n===1?'':'s'} \u00b7 saved ${fmt(new Date(p.savedAt))}`;
+}
+function savePlan(){
+  const box = document.getElementById('planName');
+  const name = box.value.trim();
+  if (!name){ box.focus(); return; }
+  const existing = S.plans.find(p => p.name.toLowerCase() === name.toLowerCase());
+  if (existing){
+    if (!confirm(`Replace the saved plan "${existing.name}" with what is on screen now?`)) return;
+    Object.assign(existing, snapshot(), { savedAt: Date.now() });
+    S.planId = existing.id;
+  } else {
+    const p = Object.assign({ id:'p'+Date.now(), name, savedAt:Date.now() }, snapshot());
+    S.plans.push(p);
+    S.planId = p.id;
+  }
+  box.value = '';
+  drawPlans(); save();
+}
+function openPlan(id){
+  const p = S.plans.find(x => x.id === id); if (!p) return;
+  S.plotW = p.plotW; S.plotD = p.plotD;
+  S.rows = JSON.parse(JSON.stringify(p.rows));
+  SEASONS.forEach(x => { if (!S.rows[x]) S.rows[x] = []; });
+  S.history = (p.history || []).slice();
+  S.planId = p.id;
+  renderAll();
+}
+function deletePlan(id){
+  const p = S.plans.find(x => x.id === id); if (!p) return;
+  if (!confirm(`Delete the saved plan "${p.name}"? This cannot be undone.`)) return;
+  S.plans = S.plans.filter(x => x.id !== id);
+  if (S.planId === id) S.planId = null;
+  drawPlans(); save();
+}
+/* Clears the layout only — region, frost dates and saved plans all survive. */
+function startFresh(){
+  const rows = SEASONS.reduce((a,x) => a + S.rows[x].length, 0);
+  if (rows && !confirm('Clear the current layout and start with an empty plot? Saved plans are kept.')) return;
+  const d = DEFAULTS();
+  S.plotW = d.plotW; S.plotD = d.plotD; S.rows = d.rows; S.history = [];
+  S.planId = null;
+  renderAll();
+}
+function drawPlans(){
+  const host = document.getElementById('planList');
+  if (!S.plans.length){
+    host.innerHTML = `<p class="empty">No saved plans yet. Lay out a plot below, then
+      give it a name and save it.</p>`;
+    return;
+  }
+  host.innerHTML = S.plans.slice().sort((a,b) => b.savedAt - a.savedAt).map(p => `
+    <div class="rowitem">
+      <span class="sw" style="background:${p.id===S.planId?'var(--green)':'var(--line)'}"></span>
+      <div class="meta">
+        <b>${p.name}${p.id===S.planId?' <span class="tag now">open</span>':''}</b>
+        <span class="desc">${planSummary(p)}</span>
+      </div>
+      <div class="acts">
+        <button class="btn sm" data-open="${p.id}">Open</button>
+        <button class="iconbtn" data-delplan="${p.id}" aria-label="Delete plan">\u00d7</button>
+      </div>
+    </div>`).join('');
+}
+
+
 /* ── Map rendering ────────────────────────────────────────────────────── */
 const SVG = 'http://www.w3.org/2000/svg';
 function el(tag, attrs, text){
@@ -315,7 +424,7 @@ function drawRows(){
       <span class="sw" style="background:${famColor(c)}"></span>
       <div class="meta">
         <b>${c.n}</b>
-        <span>${b.plants} plants · ${c.sp}″ apart · ${b.depth.toFixed(1)} ft row${serves}</span>
+        <span class="desc">${b.plants} plants · ${c.sp}″ apart · ${b.depth.toFixed(1)} ft row${serves}</span>
       </div>
       <div class="acts">
         <button class="iconbtn" data-up="${b.i}" aria-label="Move north">↑</button>
@@ -393,7 +502,7 @@ function drawCalendar(){
     ? live.map(x => `<button class="cropitem" data-info="${x.c.id}">
         <span class="dot" style="background:${famColor(x.c)}"></span>
         <span class="t"><b>${x.c.n}</b>
-          <span>${METHOD[x.w.m]} · through ${fmt(x.end)}</span></span>
+          <span class="desc">${METHOD[x.w.m]} · through ${fmt(x.end)}</span></span>
         <span class="tag now">now</span></button>`).join('')
     : `<p class="empty">Nothing is due for planting this week. Check the months below —
         in Georgia the next window is rarely far off.</p>`;
@@ -446,7 +555,7 @@ function drawCrops(){
     return `<button class="cropitem" data-info="${c.id}">
       <span class="dot" style="background:${famColor(c)}"></span>
       <span class="t"><b>${c.n}</b>
-        <span>${FAMILIES[c.fam].n} · ${c.sp}″ apart · rows ${c.row}″</span></span>
+        <span class="desc">${FAMILIES[c.fam].n} · ${c.sp}″ apart · rows ${c.row}″</span></span>
       ${now ? '<span class="tag now">plant now</span>'
             : (c.perennial ? '<span class="tag">perennial</span>' : '')}
     </button>`;
@@ -517,9 +626,68 @@ function drawGuide(){
     const c = byId[id];
     return `<button class="cropitem" data-info="${c.id}">
       <span class="dot" style="background:${famColor(c)}"></span>
-      <span class="t"><b>${c.n}</b><span>${c.yld}</span></span></button>`;
+      <span class="t"><b>${c.n}</b><span class="desc">${c.yld}</span></span></button>`;
   }).join('');
 }
+
+
+/* ── Backup ───────────────────────────────────────────────────────────────
+   A plan is worth real effort, and browser storage can vanish — a private
+   window, cleared site data, or a browser that blocks it outright. Export is
+   plain text so it survives anywhere the user can paste, and it doubles as the
+   way to move a garden between a phone and a computer. */
+function ioNote(msg, bad){
+  const n = document.getElementById('ioNote');
+  n.textContent = msg;
+  n.style.color = bad ? 'var(--danger)' : 'var(--green)';
+}
+function exportData(){
+  const payload = JSON.stringify({
+    app:'ga-garden', v:1, exported:new Date().toISOString(),
+    region:S.region, last:S.last, first:S.first,
+    plans:S.plans, current:snapshot()
+  });
+  const box = document.getElementById('ioBox');
+  box.value = payload;
+  box.select();
+  const n = S.plans.length;
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(payload).then(
+      () => ioNote(`Copied to the clipboard — ${n} saved plan${n===1?'':'s'} plus your current layout. Paste it somewhere safe.`),
+      () => ioNote('Could not reach the clipboard. Select the text above and copy it by hand.', true));
+  } else {
+    ioNote('Select the text above and copy it — this browser blocks automatic copying.', true);
+  }
+}
+function importData(){
+  const box = document.getElementById('ioBox');
+  const raw = box.value.trim();
+  if (!raw){ ioNote('Paste a backup into the box first, then press this again.', true); return; }
+  let d;
+  try { d = JSON.parse(raw); }
+  catch(e){ ioNote('That is not a valid backup — it looks like part of the text is missing.', true); return; }
+  if (!d || d.app !== 'ga-garden' || !Array.isArray(d.plans)){
+    ioNote('That text is not a Georgia Garden Planner backup.', true); return;
+  }
+  if (!confirm(`Import ${d.plans.length} saved plan(s)? This replaces what is on this device.`)) return;
+
+  S.plans  = d.plans;
+  S.region = REGIONS[d.region] ? d.region : S.region;
+  S.last   = /^\d{2}-\d{2}$/.test(d.last  || '') ? d.last  : S.last;
+  S.first  = /^\d{2}-\d{2}$/.test(d.first || '') ? d.first : S.first;
+  if (d.current){
+    S.plotW = +d.current.plotW || S.plotW;
+    S.plotD = +d.current.plotD || S.plotD;
+    S.rows  = d.current.rows || S.rows;
+    SEASONS.forEach(x => { if (!Array.isArray(S.rows[x])) S.rows[x] = []; });
+    S.history = Array.isArray(d.current.history) ? d.current.history : [];
+  }
+  S.planId = null;
+  box.value = '';
+  renderAll();
+  ioNote(`Imported ${d.plans.length} plan${d.plans.length===1?'':'s'}.`);
+}
+
 
 /* ── Wiring ───────────────────────────────────────────────────────────── */
 function renderAll(){
@@ -531,6 +699,7 @@ function renderAll(){
     `<button class="chip" data-season="${s}" aria-pressed="${S.season===s}">${s}</button>`).join('');
   document.getElementById('seasonNote').textContent = SEASON_NOTE[S.season];
   drawPicker(); renderMap(); drawCalendar(); drawCrops(); drawGuide();
+  drawPlans(); drawStorageWarning();
   save();
 }
 
@@ -550,6 +719,13 @@ document.addEventListener('click', e => {
   if (t.dataset.cat){ S.cat = t.dataset.cat; drawCrops(); save(); return; }
   if (t.dataset.info){ openCrop(t.dataset.info); return; }
   if (t.hasAttribute('data-close')){ document.getElementById('sheet').classList.remove('on'); return; }
+
+  if (t.dataset.open){ openPlan(t.dataset.open); return; }
+  if (t.dataset.delplan){ deletePlan(t.dataset.delplan); return; }
+  if (t.id === 'savePlanBtn'){ savePlan(); return; }
+  if (t.id === 'freshBtn'){ startFresh(); return; }
+  if (t.id === 'exportBtn'){ exportData(); return; }
+  if (t.id === 'importBtn'){ importData(); return; }
 
   if (t.dataset.hist){
     const f = t.dataset.hist, i = S.history.indexOf(f);
@@ -573,7 +749,8 @@ document.addEventListener('click', e => {
     renderMap(); save(); return;
   }
   if (t.id === 'resetBtn'){
-    if (confirm('Erase your plot, rows and history on this device?')){
+    if (confirm('Erase everything on this device — every saved plan, your region and '
+              + 'your rotation history? This cannot be undone.')){
       S = DEFAULTS(); save(); renderAll();
     }
   }

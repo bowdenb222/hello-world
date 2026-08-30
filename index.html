@@ -25,6 +25,24 @@
 
 <!-- ══ MAP ══════════════════════════════════════════════════════════ -->
 <section class="view on" id="v-map">
+  <div id="storageWarn"></div>
+
+  <div class="card">
+    <h2>Saved plans</h2>
+    <div id="planList"></div>
+    <div class="row2" style="margin-top:10px">
+      <input type="text" id="planName" placeholder="Name this plan" maxlength="40"
+             aria-label="Name for this plan">
+      <button class="btn primary" id="savePlanBtn" style="flex:none">Save</button>
+    </div>
+    <button class="btn" id="freshBtn" style="width:100%;margin-top:8px">Start from scratch</button>
+    <p class="sub" style="margin:9px 0 0">
+      Your current layout is kept automatically, so closing the app and coming back
+      resumes where you left off. Save it under a name to keep several plans — this
+      year and next, or the front plot and the back.
+    </p>
+  </div>
+
   <div class="card">
     <h2>Plot size</h2>
     <div class="row2">
@@ -184,13 +202,35 @@
   </div>
 
   <div class="card">
+    <h2>Backup &amp; transfer</h2>
+    <p class="sub" style="margin:-4px 0 10px">
+      Copy your plans out as text. Keep it somewhere safe, or paste it into the app on
+      another phone or computer to move everything across. This is also the only way to
+      keep a plan if your browser is blocking saved data.
+    </p>
+    <div class="row2">
+      <button class="btn" id="exportBtn" style="flex:1">Copy my data</button>
+      <button class="btn" id="importBtn" style="flex:1">Paste data in</button>
+    </div>
+    <textarea id="ioBox" rows="4" placeholder="Your data appears here when you copy, or paste a backup in and press Paste data in."
+      style="width:100%;margin-top:10px;padding:9px 10px;border:1px solid var(--line);
+             border-radius:9px;background:var(--bg);font-family:ui-monospace,monospace;
+             font-size:11.5px;resize:vertical"></textarea>
+    <p class="sub" style="margin:8px 0 0" id="ioNote"></p>
+  </div>
+
+  <div class="card">
     <h2>About</h2>
     <p class="sub" style="margin:0">
       Works offline once loaded. Everything you enter stays on this phone — no account,
       no server. Planting windows follow UGA Extension guidance for Georgia and are
       averages: watch the actual forecast before setting out tender transplants.
     </p>
-    <button class="btn sm" id="resetBtn" style="margin-top:11px">Reset all saved data</button>
+    <button class="btn sm" id="resetBtn" style="margin-top:11px">Erase everything</button>
+    <p class="sub" style="margin:7px 0 0">
+      Deletes every saved plan, your region and your rotation history. To clear just the
+      current layout, use <b>Start from scratch</b> on the map instead.
+    </p>
   </div>
 </section>
 

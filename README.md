@@ -32,6 +32,16 @@ the layout changes.
 both newly opening windows and ones still open. All dates are computed from your
 last and first frost dates, so changing region re-times the whole calendar.
 
+**Saved plans** — The current layout is autosaved on every change, so closing
+the app and reopening resumes exactly where you left off. Save it under a name to
+keep several plans side by side — this year and next, or the front plot and the
+back. *Start from scratch* clears the layout while keeping your saved plans,
+region and frost dates.
+
+**Backup** — *Copy my data* under Guide puts everything on the clipboard as
+plain text; *Paste data in* restores it. Use it to move a garden between a phone
+and a computer, or to keep plans safe in a browser that blocks storage.
+
 **Crop guide** — 65 crops: vegetables, roots and tubers, herbs and spices, and
 perennial fruit. Each entry carries spacing, depth, mature height, days to
 maturity, yield, how much to plant per person, Georgia-specific growing notes
@@ -61,6 +71,21 @@ Publish the repo with GitHub Pages, then install from the browser:
 
 It then launches like a native app and works offline in the garden, which
 matters once you are out past the shed with no signal.
+
+## Where your data lives
+
+Everything is kept in `localStorage` on the device — no account, no server, and
+nothing leaves the phone.
+
+One caveat worth knowing: some browsers refuse storage entirely. Private windows
+do, and so does Safari with *Prevent Cross-Site Tracking* (on by default) when
+the page is embedded in an iframe from another origin — which is how preview
+links render it. The app probes storage at startup and shows a banner when writes
+will not stick, rather than losing a plan silently.
+
+Installing to the home screen from your own GitHub Pages URL makes the app a
+first-party origin, where storage persists normally. That is the setup to use for
+a garden you actually care about; *Copy my data* is the backstop.
 
 ## Running it locally
 

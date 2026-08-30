@@ -105,10 +105,14 @@ svg.plot text{font-family:system-ui,sans-serif}
 .rowitem .sw{width:11px;height:32px;border-radius:3px;flex:none}
 .rowitem .meta{flex:1;min-width:0}
 .rowitem .meta b{font-size:14px;font-weight:600;display:block}
-.rowitem .meta span{font-size:12px;color:var(--muted)}
+.rowitem .meta .desc{font-size:12px;color:var(--muted)}
 .rowitem .acts{display:flex;gap:3px;flex:none}
 .iconbtn{width:34px;height:34px;border:1px solid var(--line);background:var(--bg);
   border-radius:8px;display:grid;place-items:center;font-size:14px;line-height:1;padding:0}
+
+/* A bare element selector here (.rowitem .meta span) outranked .tag.now and
+   repainted status pills in muted grey. Descriptions carry an explicit class so
+   anything else dropped into these slots keeps its own colour. */
 
 /* alerts */
 .alert{border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;
@@ -133,7 +137,7 @@ svg.plot text{font-family:system-ui,sans-serif}
 .cropitem .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .cropitem .t{flex:1;min-width:0}
 .cropitem .t b{display:block;font-size:14.5px;font-weight:600}
-.cropitem .t span{font-size:12px;color:var(--muted)}
+.cropitem .t .desc{font-size:12px;color:var(--muted)}
 .tag{font-size:10.5px;font-weight:650;padding:2px 7px;border-radius:999px;
   background:var(--green-soft);color:var(--green);white-space:nowrap;flex:none}
 .tag.now{background:var(--green);color:#fff}
