@@ -187,3 +187,9 @@ svg.plot text{font-family:system-ui,sans-serif}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])
   .btn.sm.trelbtn[aria-pressed="true"]{color:#16181a}}
 .tag.muted{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+
+/* save-state line above the map */
+.savedline{margin:0 0 10px;font-size:12px;color:var(--muted);
+  display:flex;align-items:center;gap:6px}
+.savedline::before{content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--green);flex:none}

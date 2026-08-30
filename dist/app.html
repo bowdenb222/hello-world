@@ -200,6 +200,12 @@ svg.plot text{font-family:system-ui,sans-serif}
   .btn.sm.trelbtn[aria-pressed="true"]{color:#16181a}}
 .tag.muted{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 
+/* save-state line above the map */
+.savedline{margin:0 0 10px;font-size:12px;color:var(--muted);
+  display:flex;align-items:center;gap:6px}
+.savedline::before{content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--green);flex:none}
+
 </style>
 </head>
 <body>
@@ -1011,10 +1017,26 @@ const DEFAULTS = () => ({
 let S = DEFAULTS();
 const KEY = 'ga-garden-v1';
 
-/* Some browsers refuse storage outright: private windows, and Safari's cross-site
-   tracking prevention when the page is embedded in an iframe from another origin.
-   Losing a garden plan silently is worse than being told, so probe once at startup
-   and warn the user if writes will not stick. */
+/* ── Where state lives ────────────────────────────────────────────────────
+   Two very different homes, picked at runtime:
+
+   'local'    localStorage. Correct for the installed PWA, where the page is a
+              first-party origin and writes stick.
+   'artifact' The artifact runtime's own file store. A preview link runs the
+              page in a sandboxed cross-origin frame where localStorage throws
+              outright, so nothing browser-side can persist there. Saving a data
+              file alongside the page does persist, and survives across devices.
+   'none'     Neither is available — say so rather than losing work quietly.
+
+   The artifact runtime only answers asynchronously and never during the first
+   synchronous run, so the page always renders from local state first and
+   upgrades if and when the capability resolves. */
+let STORE = 'local';
+let artifactNS = null;
+let publishing = false, publishErr = null, lastSaved = 0, userActed = false;
+let pubTimer = null;
+const DATA_FILE = 'data/garden.json';
+
 let STORAGE_OK = (function(){
   try {
     localStorage.setItem('__probe__', '1');
@@ -1022,25 +1044,118 @@ let STORAGE_OK = (function(){
     return true;
   } catch (e) { return false; }
 })();
+if (!STORAGE_OK) STORE = 'none';
+
+/* Only the parts worth carrying between sessions — not transient UI like the
+   crop search box. */
+function persistable(){
+  return { region:S.region, last:S.last, first:S.first, plotW:S.plotW, plotD:S.plotD,
+           season:S.season, rows:S.rows, history:S.history, plans:S.plans, planId:S.planId };
+}
+function adopt(r){
+  if (!r || typeof r !== 'object') return false;
+  S = Object.assign(DEFAULTS(), r);
+  if (!S.rows || typeof S.rows !== 'object') S.rows = DEFAULTS().rows;
+  SEASONS.forEach(x => { if (!Array.isArray(S.rows[x])) S.rows[x] = []; });
+  if (!Array.isArray(S.plans)) S.plans = [];
+  if (!Array.isArray(S.history)) S.history = [];
+  return true;
+}
 
 function load(){
   if (!STORAGE_OK) return;
   try {
     const r = JSON.parse(localStorage.getItem(KEY));
-    if (r) S = Object.assign(DEFAULTS(), r);
+    if (r) adopt(r);
   } catch(e){/* corrupt entry — start clean rather than dying on load */}
 }
 function save(){
-  if (!STORAGE_OK) return;
-  try { localStorage.setItem(KEY, JSON.stringify(S)); }
-  catch(e){ STORAGE_OK = false; drawStorageWarning(); }
+  if (STORAGE_OK){
+    try { localStorage.setItem(KEY, JSON.stringify(persistable())); }
+    catch(e){ STORAGE_OK = false; if (STORE === 'local') STORE = 'none'; }
+  }
+  if (artifactNS && userActed) schedulePublish();
+  drawStorageWarning();
 }
+
+/* Every publish mints a version, so batch: a few seconds after the user stops. */
+function schedulePublish(){
+  clearTimeout(pubTimer);
+  pubTimer = setTimeout(doPublish, 2500);
+}
+function flushPublish(){
+  if (pubTimer){ clearTimeout(pubTimer); pubTimer = null; doPublish(); }
+}
+async function doPublish(){
+  if (!artifactNS || publishing) return;
+  publishing = true; drawStorageWarning();
+  try {
+    await artifactNS.publish({ [DATA_FILE]: JSON.stringify(persistable()) });
+    lastSaved = Date.now(); publishErr = null;
+  } catch (e) {
+    const code = (e && e.code) || 'upstream_error';
+    if (code === 'conflict'){
+      publishErr = null;            /* the view is already reloading to the winner */
+    } else if (code === 'rate_limited'){
+      publishErr = null;
+      setTimeout(schedulePublish, 15000);
+    } else {
+      publishErr = code;
+    }
+  } finally {
+    publishing = false; drawStorageWarning();
+  }
+}
+
+async function initArtifactStore(){
+  if (!(window.claude && typeof window.claude.use === 'function')) return;
+  let ns = null;
+  try { ns = await window.claude.use('artifact'); } catch(e){ return; }
+  if (!ns) return;
+  artifactNS = ns;
+  STORE = 'artifact';
+  try {
+    const res = await fetch(DATA_FILE, { cache:'no-store' });
+    if (res.ok && adopt(await res.json())) renderAll();
+  } catch(e){/* nothing saved yet, or the file is unreadable — carry on */}
+  drawStorageWarning();
+}
+
+const ERRTEXT = {
+  not_writer:'This is a read-only view of someone else\'s page, so changes are not kept. Open your own copy to save plans.',
+  not_granted:'This view cannot save. Use Copy my data under Guide to keep a backup.',
+  consent_required:'This view cannot save. Use Copy my data under Guide to keep a backup.',
+  not_declared:'Saving is switched off for this page. Use Copy my data under Guide to keep a backup.',
+  capability_disabled:'Saving is not available in this view. Use Copy my data under Guide to keep a backup.',
+  capability_removed:'Saving is not available in this view. Use Copy my data under Guide to keep a backup.',
+  too_large:'Too much saved data to store. Delete a plan you no longer need, then try again.',
+  invalid_content:'The saved data could not be written. Use Copy my data under Guide to keep a backup.',
+  read_only_path:'The saved data could not be written. Use Copy my data under Guide to keep a backup.',
+  transform_error:'The saved data could not be written. Use Copy my data under Guide to keep a backup.',
+  upstream_error:'Saving failed just now. It will retry on your next change; Copy my data under Guide is the safe backup.'
+};
+
 function drawStorageWarning(){
   const host = document.getElementById('storageWarn');
   if (!host) return;
-  host.innerHTML = STORAGE_OK ? '' : `<div class="alert bad">
+
+  if (STORE === 'artifact'){
+    if (publishErr){
+      host.innerHTML = `<div class="alert bad"><b>Not saving</b>${
+        ERRTEXT[publishErr] || ERRTEXT.upstream_error}</div>`;
+    } else {
+      host.innerHTML = `<p class="savedline">${
+        publishing ? 'Saving\u2026'
+        : lastSaved ? 'Saved \u00b7 your plans stay on this link, on any device'
+        : 'Changes save to this link automatically'}</p>`;
+    }
+    return;
+  }
+  if (STORE === 'local'){ host.innerHTML = ''; return; }
+
+  host.innerHTML = `<div class="alert bad">
     <b>This browser will not save your work</b>
-    Saved data is blocked here, so your plan disappears when you close the tab. Two
+    Saved data is blocked here, so your plans disappear when you close the tab. Two
     fixes: install this to your home screen and open it from that icon, or use
     <b>Copy my data</b> under Guide to keep a backup you can paste back in.</div>`;
 }
@@ -1735,6 +1850,7 @@ function renderAll(){
 }
 
 document.addEventListener('click', e => {
+  userActed = true;
   const t = e.target.closest('button, [data-close]');
   if (!t) return;
 
@@ -1799,15 +1915,18 @@ document.addEventListener('keydown', e => {
 });
 
 document.getElementById('plotW').addEventListener('input', e => {
+  userActed = true;
   S.plotW = Math.max(2, Math.min(300, +e.target.value || 2)); renderMap(); save();
 });
 document.getElementById('plotD').addEventListener('input', e => {
+  userActed = true;
   S.plotD = Math.max(2, Math.min(300, +e.target.value || 2)); renderMap(); save();
 });
 document.getElementById('cropSearch').addEventListener('input', e => {
   S.q = e.target.value; drawCrops(); save();
 });
 document.getElementById('regionSel').addEventListener('change', e => {
+  userActed = true;
   S.region = e.target.value;
   S.last = REGIONS[S.region].last;
   S.first = REGIONS[S.region].first;
@@ -1823,6 +1942,13 @@ document.getElementById('regionSel').addEventListener('change', e => {
 
 load();
 renderAll();
+initArtifactStore();
+
+/* A debounced save must not be lost to a backgrounded or closed tab. */
+window.addEventListener('pagehide', flushPublish);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushPublish();
+});
 
 })();
 

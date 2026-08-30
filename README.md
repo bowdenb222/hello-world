@@ -85,18 +85,30 @@ matters once you are out past the shed with no signal.
 
 ## Where your data lives
 
-Everything is kept in `localStorage` on the device — no account, no server, and
-nothing leaves the phone.
+State has two possible homes, chosen at runtime.
 
-One caveat worth knowing: some browsers refuse storage entirely. Private windows
-do, and so does Safari with *Prevent Cross-Site Tracking* (on by default) when
-the page is embedded in an iframe from another origin — which is how preview
-links render it. The app probes storage at startup and shows a banner when writes
-will not stick, rather than losing a plan silently.
+**`localStorage`** — used whenever the page is served normally: GitHub Pages, a
+local server, or the app installed to a home screen. Nothing leaves the device.
 
-Installing to the home screen from your own GitHub Pages URL makes the app a
-first-party origin, where storage persists normally. That is the setup to use for
-a garden you actually care about; *Copy my data* is the backstop.
+**The artifact runtime's file store** — used when the page runs as a published
+Claude artifact. A preview link renders the page in a sandboxed cross-origin
+frame where `localStorage` throws `SecurityError` outright, so nothing
+browser-side can persist there. Instead the page saves a `data/garden.json`
+alongside itself using the `artifact` capability's files-publish form, debounced
+a few seconds after you stop making changes and flushed if the tab is hidden.
+That persists properly and follows the link across devices.
+
+If neither is available the app says so in a banner rather than losing work
+quietly, and *Copy my data* under Guide is the guaranteed backstop in every case.
+
+Publishing the page as an artifact requires declaring the capability:
+
+```
+capabilities: { artifact: {} }
+```
+
+Without it `claude.use('artifact')` resolves `null`, the page falls back to
+`localStorage`, and inside a sandboxed frame that means nothing is saved.
 
 ## Running it locally
 
