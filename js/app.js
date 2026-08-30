@@ -342,12 +342,22 @@ function drawAlerts(){
 
 function drawPicker(){
   const sel = document.getElementById('addCrop');
+  const season = S.season.toLowerCase();
   const fit = [], other = [];
   CROPS.forEach(c => ((c.sow||[]).some(w => w.s === S.season) ? fit : other).push(c));
+
+  /* Browsers style <optgroup> labels very inconsistently on phones — some render
+     them almost invisibly — so the split is signalled three ways: a count in each
+     group label, a second label that says what the group IS rather than "other",
+     and a disabled divider row that shows up even where group labels do not. */
   const opt = c => `<option value="${c.id}">${c.n}</option>`;
-  const sort = a => a.sort((x,y) => x.n.localeCompare(y.n)).map(opt).join('');
-  sel.innerHTML = `<optgroup label="Good for ${S.season.toLowerCase()}">${sort(fit)}</optgroup>`
-                + `<optgroup label="Other crops">${sort(other)}</optgroup>`;
+  const sort = a => a.slice().sort((x,y) => x.n.localeCompare(y.n)).map(opt).join('');
+  const divider = '<option disabled>' + '─'.repeat(12) + '</option>';
+
+  sel.innerHTML =
+      `<optgroup label="▸ Plant in ${season} (${fit.length})">${sort(fit)}</optgroup>`
+    + divider
+    + `<optgroup label="▸ Not planted in ${season} (${other.length})">${sort(other)}</optgroup>`;
 }
 
 function renderMap(){ drawPlot(); drawRows(); drawAlerts(); }
